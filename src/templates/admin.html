@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <style>
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        button {
+            cursor: pointer;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .btn {
+            cursor: pointer;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+        }
+        .accept-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .reject-btn {
+            background-color: #f44336;
+            color: white;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <h2>Admin Panel - Orders</h2>
+    <a href="/logout" style="float:right">Logout</a> <br/> <br/>
+    <div id="ordersSection">   
+        <table id="ordersTable">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Retailer Contact</th>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Product Cost</th>
+                    <th>Status</th>
+                    <th>Action1</th>
+                    <th>Action2</th>
+                </tr>
+            </thead>
+            <tbody>
+            {%for i in data%}
+                <tr>
+                    <td>{{i[0]}}</td>
+                    <td>{{i[1]}}</td>
+                    <td>{{i[2]}}</td>
+                    <td>{{i[3]}}</td>
+                    <td>{{i[4]}}</td>
+                    <td>{{i[5]}}</td>
+                    {%if i[5]==0%}
+                        <td><button><a href="/rupdateOrder/{{i[0]}}/1" style="color:white;text-decoration: none;">Accept</a></button></td>
+                        <td><button><a href="/rupdateOrder/{{i[0]}}/3" style="color:white;text-decoration: none;">Reject</a></button></td>
+                    {%endif%}
+                    {%if i[5]==1%}
+                        <td>Accepted</td>
+                        <td><button><a href="/rupdateOrder/{{i[0]}}/2" style="color:white;text-decoration: none;">Deliver</a></button></td>
+                    {%endif%}
+                    {%if i[5]==2%}
+                        <td colspan="2"><center>Delivered</center></td>
+                    {%endif%}
+                    {%if i[5]==3%}
+                        <td colspan="2"><center>Rejected</center></td>
+                    {%endif%}
+                </tr>
+            {%endfor%}
+            </tbody>
+        </table>
+    </div>
+
+    <h2>Weather Monitoring in field</h2>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <iframe width="450" height="260" style="border: 1px solid #cccccc;" src="https://thingspeak.com/channels/12397/charts/1?&results=720&dynamic=true"></iframe>
+        </div>
+        <div class="col-sm-6">
+            <iframe width="450" height="260" style="border: 1px solid #cccccc;" src="https://thingspeak.com/channels/12397/charts/2?&results=720&dynamic=true"></iframe>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <iframe width="450" height="260" style="border: 1px solid #cccccc;" src="https://thingspeak.com/channels/12397/charts/3?&results=720&dynamic=true"></iframe>
+        </div>
+        <div class="col-sm-6">
+            <iframe width="450" height="260" style="border: 1px solid #cccccc;" src="https://thingspeak.com/channels/12397/charts/5?&results=720&dynamic=true"></iframe>
+        </div>    
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <iframe width="450" height="260" style="border: 1px solid #cccccc;" src="https://thingspeak.com/channels/12397/charts/4?&results=720&dynamic=true"></iframe>
+        </div>
+        <div class="col-sm-6">
+            <iframe width="450" height="260" style="border: 1px solid #cccccc;" src="https://thingspeak.com/channels/12397/charts/6?&results=720&dynamic=true"></iframe>
+        </div>
+    </div>    
+    <div class="row">
+        <div class="col-sm-6">
+            <iframe width="450" height="260" style="border: 1px solid #cccccc;" src="https://thingspeak.com/channels/12397/charts/7?&results=720&dynamic=true"></iframe>
+        </div>
+        <div class="col-sm-6">
+            <iframe width="450" height="260" style="border: 1px solid #cccccc;" src="https://thingspeak.com/channels/12397/charts/8?&results=720&dynamic=true"></iframe>
+        </div>
+    </div>
+
+
+<script>
+    let orders = []; // Sample orders data
+    let files = []; // Sample files data
+
+    // Function to display orders
+    
+
+    // Function to display uploaded files
+    
+
+    // Function to update order status
+    function updateOrderStatus(orderId, status, retailer) {
+        const order = orders.find(order => order.orderId === orderId);
+        if (order) {
+            order.status = status;
+            sendNotificationToRetailer(status, retailer); // Send notification to retailer
+            displayOrders(); // Refresh the orders table
+        } else {
+            console.error('Order not found');
+        }
+    }
+
+    // Function to send notification to retailer
+    function sendNotificationToRetailer(status, retailer) {
+        const message = `Your order has been ${status.toLowerCase()} by the admin.`;
+        const recipient = retailer; // Assuming retailer's email or contact number
+         
+        console.log(`Notification sent to ${recipient}: ${message}`);
+    }
+
+    // Sample orders data
+    // orders.push({ orderId: 1, retailer: "Retailer A", product: "Product X", quantity: 5, totalPrice: 100, date: "2024-03-14", status: "Pending" });
+    // orders.push({ orderId: 2, retailer: "Retailer B", product: "Product Y", quantity: 3, totalPrice: 150, date: "2024-03-15", status: "Pending" });
+    // orders.push({ orderId: 3, retailer: "Retailer C", product: "Product Z", quantity: 2, totalPrice: 50, date: "2024-03-16", status: "Pending" });
+
+ // Sample files data
+    // files.push({ fileId: 1, filename: "file1.pdf", uploadedBy: "User1", date: "2024-03-14" });
+    // files.push({ fileId: 2, filename: "file2.jpg", uploadedBy: "User2", date: "2024-03-15" });
+    // files.push({ fileId: 3, filename: "file3.docx", uploadedBy: "User3", date: "2024-03-16" });
+
+    // Display initial orders and files
+    displayOrders();
+    displayFiles();
+</script>
+
+</body>
+</html>
